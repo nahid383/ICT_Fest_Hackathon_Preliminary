@@ -34,13 +34,18 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)):
         .filter(User.org_id == org.id, User.username == payload.username)
         .first()
     )
+
+    print("ORG ID:", org.id)
+    print("USERNAME:", payload.username)
+    print("EXISTING USER:", existing)
+
     if existing is not None:
-        return {
-            "user_id": existing.id,
-            "org_id": org.id,
-            "username": existing.username,
-            "role": existing.role,
-        }
+        print(">>> DUPLICATE USER FOUND <<<")
+        raise AppError(
+            409,
+            "USERNAME_TAKEN",
+            "Username already exists in this organization",
+        )
 
     user = User(
         org_id=org.id,
