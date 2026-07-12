@@ -19,7 +19,7 @@ from ..schemas import LoginRequest, RefreshRequest, RegisterRequest
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@router.post("/register", status_code=201)
+@router.post("/register", status_code=200)
 def register(payload: RegisterRequest, db: Session = Depends(get_db)):
     org = db.query(Organization).filter(Organization.name == payload.org_name).first()
     role = "admin" if org is None else "member"
@@ -43,7 +43,7 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)):
         print(">>> DUPLICATE USER FOUND <<<")
         raise AppError(
             409,
-            "USERNAME_TAKEN",
+            "USERNAME TAKEN",
             "Username already exists in this organization",
         )
 
@@ -57,11 +57,11 @@ def register(payload: RegisterRequest, db: Session = Depends(get_db)):
     db.commit()
     db.refresh(user)
     return {
-        "user_id": user.id,
-        "org_id": org.id,
-        "username": user.username,
-        "role": user.role,
-    }
+    "id": user.id,
+    "org_id": org.id,
+    "username": user.username,
+    "role": user.role,
+}
 
 
 @router.post("/login")
